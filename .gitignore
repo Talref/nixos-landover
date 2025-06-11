@@ -1,0 +1,10 @@
+# Nix-related ignores
+.direnv/
+.envrc
+result/
+.git/
+.cache/
+.local/
+.state/
+*.orig
+*.rej
