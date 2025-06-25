@@ -2,4 +2,5 @@ creation_rules:
   - path_regex: secrets/.*
     key_groups:
       - age:
-          - age1tzf6l36gkejyf3zspxcvr595yzg6f3v0lr265zjwgc0367u2fa8swxs7m0
+#          - age1tzf6l36gkejyf3zspxcvr595yzg6f3v0lr265zjwgc0367u2fa8swxs7m0  # Your user key
+          - age1txsmnxm8hxy55mtvj3e6hvd5y9hg4eglag7ycj9xejwyz7uufs3sy6tdhu  # System host key
