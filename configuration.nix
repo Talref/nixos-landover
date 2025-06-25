@@ -6,15 +6,14 @@
       ./hardware-configuration.nix
       ./services/sillytavern.nix # Silly Tavern service (fine, local)
       ./services/mongodb-docker.nix # MongoDB docker (fine, local, but consider OCI containers later)
+      ./services/navidrome.nix
       # ./services/gsplay.nix # GSPlay stack (fine, local)
     ];
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   # No User Units reloads on a headless server.
   # systemd.userUnitsReload.enable = false;
-
-  # Experimental Features"
-  # nix.settings.experimental-features = [ "nix-command" "flakes" ]; -- REMOVED: Now set globally in your ~/.config/nix/nix.conf or /etc/nix/nix.conf
-                                                                  # and also implied by using flakes.
 
   # Use Systemd for boot.
   boot.loader.systemd-boot.enable = true;
@@ -48,6 +47,7 @@
       6969 # Sillytavern
       9090 # Bittorrent
       8989
+      32400 # Plex?
     ];
     allowedUDPPorts = [
       111 # NFS Share
