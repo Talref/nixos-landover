@@ -2,66 +2,52 @@
 { config, pkgs, lib, ... }:
 
 let
-  navidromeUser = "navidrome";
-  navidromeGroup = "navidrome";
+  # Use your existing user and group matching YAMS setup (eradan:users)
+  # Assuming 'eradan' is UID 1000 and 'users' is GID 100
+  userForContainer = "eradan";
+  groupForContainer = "users";
 
+  # Define paths for Navidrome's configuration and music data
   navidromeConfigDir = "/media/configs/navidrome"; # Persistent config files
   navidromeMusicDir = "/media/music";             # Your music library
 
 in
 {
-  # Ensure the Navidrome user and group exist
-  users.users.${navidromeUser} = {
-    isSystemUser = true;
-    group = navidromeGroup;
-    # Ensure this user can access /media/configs and /media/music
-    extraGroups = [ "users" ];
+  # Define the SOPS secret for Navidrome's password
+  sops.secrets.navidrome_password = {
+    sopsFile = ./secrets/navidrome-password.yaml;
+    mode = "0400"; # Read-only for owner
+    owner = userForContainer;
+    group = groupForContainer;
   };
-  users.groups.${navidromeGroup} = {};
 
   # Define the Navidrome container using NixOS's declarative OCI (Docker) support
   virtualisation.oci-containers.containers.navidrome = {
-    image = "deluan/navidrome:latest"; # Or a specific version like "deluan/navidrome:0.50.0" for more control
+    image = "deluan/navidrome:latest"; # Or a specific version for stability
     autoStart = true;
-    extraHostConfig = {
-      ContainerName = "navidrome";
-    };
+    ports = [ "127.0.0.1:4533:4533" ]; # Expose only internally for Caddy to proxy
 
-    ports = [ "127.0.0.1:4533:4533" ];
-
-    # Volume mounts for config and music
     volumes = [
-      "${navidromeConfigDir}:/data"
-      "${navidromeMusicDir}:/music:ro"
+      "${navidromeConfigDir}:/data"      # Container's /data for DB/config
+      "${navidromeMusicDir}:/music:ro"   # Container's /music for library (read-only)
     ];
 
-    # Environment variables for Navidrome
     environment = {
-      # ND_HOME points to the data directory inside the container
-      ND_HOME = "/data";
-      # ND_SCANINTERVAL: set to "1h" for hourly scans, "0" for manual, or "10m" for 10 minutes
-      ND_SCANINTERVAL = "1h";
-      # ND_LOGLEVEL: "info", "warn", "error", "debug", "trace"
-      ND_LOGLEVEL = "info";
-      ND_USERNAME = "admin";
-      ND_PASSWORD = "my_secure_password";
+      ND_HOME = "/data";          # Navidrome's data directory inside container
+      ND_SCANINTERVAL = "1h";     # Set scan interval (e.g., "0" for manual, "10m" for 10 minutes)
+      ND_LOGLEVEL = "info";       # Logging level ("info", "warn", "error", "debug", "trace")
+      ND_PASSWORD = lib.strings.fileContents config.sops.secrets.navidrome_password.path; # Get password from SOPS
     };
 
-    # Run the container as the dedicated user/group
-    user = "${toString navidromeUser}:${toString navidromeGroup}";
+    # Run the container process as your specified user/group
+    user = "${toString userForContainer}:${toString groupForContainer}";
 
-    # Ensure the necessary directories exist on the host before container starts
-    preStart = ''
-      mkdir -p ${navidromeConfigDir}
-      chown -R ${navidromeUser}:${navidromeGroup} ${navidromeConfigDir}
-    '';
+    # Ensure the config directory exists on the host. Permissions are assumed correct for 'eradan'.
+    preStart = "mkdir -p ${navidromeConfigDir}";
   };
 
   # Configure Caddy to serve Navidrome with HTTPS
   services.caddy.virtualHosts."navidrome.andreaferlat.com" = {
-    # Ensure Caddy is set up for automatic HTTPS via Let's Encrypt (which you already have enabled)
-    # The 'email' for ACME is set in your main configuration.nix, so it will be used here.
-    # No 'tls internal' needed for public domain.
-    reverse_proxy = "localhost:4533"; # Proxy requests to the internal port of the Navidrome container
+    reverse_proxy = "localhost:4533"; # Proxy requests to the internal Navidrome port
   };
 }

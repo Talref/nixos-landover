@@ -8,3 +8,4 @@ result/
 .state/
 *.orig
 *.rej
+.sops.yaml.gpg
