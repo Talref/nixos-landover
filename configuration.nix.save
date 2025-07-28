@@ -45,17 +45,13 @@
       443
       2049 # NFS Share
       6969 # Sillytavern
-      7777 # Abiotic Factor Docker
       9090 # Bittorrent
       8989
-      27015 # Abiotic Factor Query
       32400 # Plex?
     ];
     allowedUDPPorts = [
       111 # NFS Share
       2049 # NFS Share
-      7777 # Abiotic Factor
-      27015 # Abiotic Factor
     ];
     # Optional: allow ICMP/ping
     allowPing = true;
@@ -92,7 +88,7 @@
     device = "/dev/disk/by-label/Data3TB";
     fsType = "xfs";
     options = [ "defaults" ];
-  };
+d:  };
 
   fileSystems."/mnt/data_8tb" = {
     device = "/dev/disk/by-label/Data8TB";
