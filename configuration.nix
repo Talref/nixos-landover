@@ -12,15 +12,14 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # No User Units reloads on a headless server.
-  # systemd.userUnitsReload.enable = false;
-
   # Use Systemd for boot.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/boot";
 
-  # Network
+  ## -- NETWORK --
+
+  # Network Setuo
   networking.hostName = "landover";
   networking.networkmanager.enable = true;
 
@@ -63,6 +62,8 @@
     logRefusedConnections = false;
   };
 
+  ## --SYSTEM --
+
   # Set your time zone.
   time.timeZone = "Europe/Rome";
 
@@ -80,56 +81,61 @@
     extraGroups = [ "wheel" "docker" "eradan" ]; # Enable ‘sudo’ for the user.
   };
 
-  # Mount /media
-  # Section 1: Mount the individual XFS drives
-  fileSystems."/mnt/data_2tb" = {
-    device = "/dev/disk/by-label/Data2TB";
-    fsType = "xfs";
-    options = [ "defaults" ];
+  ## -- STORAGE --
+
+# Mount /media
+# Section 1: Mount the individual XFS drives
+fileSystems."/mnt/data_2tb" = {
+  device = "/dev/disk/by-label/Data2TB";
+  fsType = "xfs";
+  options = [ "defaults" ];
+};
+
+fileSystems."/mnt/data_8tb" = {
+  device = "/dev/disk/by-label/Data8TB";
+  fsType = "xfs";
+  options = [ "defaults" ];
+};
+
+fileSystems."/mnt/data_12tb" = {
+  device = "/dev/disk/by-label/Data12TB";
+  fsType = "xfs";
+  options = [ "defaults" ];
+};
+
+# NEW: Dedicated downloads drive
+fileSystems."/media/downloads" = {
+  device = "/dev/disk/by-label/Data3TB"; 
+  fsType = "xfs";
+  options = [ "defaults" "nofail" ];
+};
+
+# Section 2: Configure MergerFS
+systemd.mounts = [{
+  unitConfig = {
+    After = [
+      "mnt-data_2tb.mount"
+      "mnt-data_8tb.mount"
+      "mnt-data_12tb.mount"
+    ];
   };
+  where = "/media";
+  what = "/mnt/data_2tb:/mnt/data_8tb:/mnt/data_12tb";
+  type = "fuse.mergerfs";
+  options = "cache.files=partial,dropcacheonclose=true,category.create=epmfs,minfreespace=50G,allow_other,auto_unmount";
+  wantedBy = [ "multi-user.target" ];
+}];
 
-  fileSystems."/mnt/data_3tb" = {
-    device = "/dev/disk/by-label/Data3TB";
-    fsType = "xfs";
-    options = [ "defaults" ];
-  };
-
-  fileSystems."/mnt/data_8tb" = {
-    device = "/dev/disk/by-label/Data8TB";
-    fsType = "xfs";
-    options = [ "defaults" ];
-  };
-
-  fileSystems."/mnt/data_12tb" = {
-    device = "/dev/disk/by-label/Data12TB";
-    fsType = "xfs";
-    options = [ "defaults" ];
-  };
-
-  # Section 2: Configure MergerFS
-  systemd.mounts = [{
-    unitConfig = {
-      After = [
-        "mnt-data_2tb.mount"
-        "mnt-data_3tb.mount"
-        "mnt-data_8tb.mount"
-        "mnt-data_12tb.mount"
-      ];
-    };
-    where = "/media";
-    what = "/mnt/data_2tb:/mnt/data_3tb:/mnt/data_8tb:/mnt/data_12tb";
-    type = "fuse.mergerfs";
-    options = "cache.files=partial,dropcacheonclose=true,category.create=epmfs,minfreespace=50G,allow_other,auto_unmount";
-    wantedBy = [ "multi-user.target" ];
-  }];
-
-  # NFS Media Share
+# NFS Media Share
   services.nfs.server = {
     enable = true;
     exports = ''
-      /media 192.168.1.0/24(rw,fsid=0,sync,no_subtree_check,no_root_squash)
+      /media          192.168.1.0/24(rw,no_subtree_check,no_root_squash,fsid=0)
+      /media/downloads 192.168.1.0/24(rw,no_subtree_check,no_root_squash)
     '';
   };
+
+  ## --SOFTWARE--
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -153,7 +159,6 @@
   virtualisation.docker.enable = true; #Docker
   services.caddy = {
     enable = true;
-    # Global Caddy email for Let's Encrypt (required for automatic HTTPS)
     email = "eradan83@gmail.com"; # Replace with your real email
   };
 
