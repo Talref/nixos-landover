@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  users.groups.eradan = {};
   systemd.services.foundry = {
     description = "Foundry Virtual Tabletop Service";
     wantedBy = [ "multi-user.target" ];
@@ -14,7 +15,7 @@
       Restart = "on-failure";
     };
   };
-
+  
   services.caddy = {
     enable = true;
     virtualHosts."foundry.andreaferlat.com" = {

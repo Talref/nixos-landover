@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  users.groups.eradan = {};
   systemd.services.sillytavern = {
     description = "SillyTavern HappyChats Service";
     wantedBy = [ "multi-user.target" ];
@@ -9,7 +10,7 @@
     serviceConfig = {
       User = "eradan";
       Group = "eradan";
-      WorkingDirectory = "/home/eradan/ai/SillyTavern";
+      WorkingDirectory = "/home/eradan/ai/Sillytavern";
       ExecStart = "${pkgs.nodejs}/bin/node server.js";
       Restart = "on-failure";
     };
@@ -20,6 +21,7 @@
     virtualHosts."silly.lan" = {
       extraConfig = ''
         reverse_proxy localhost:6969
+        tls internal
       '';
     };
   };
