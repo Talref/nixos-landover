@@ -12,7 +12,8 @@
           --name mongodb \
           -p 27017:27017 \
           -v /media/configs/mongodb:/data/db \
-          mongo:7
+          mongo:7 \
+          --auth
       '';
       ExecStop = "${pkgs.docker}/bin/docker stop mongodb";
       Restart = "always";

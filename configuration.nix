@@ -7,7 +7,8 @@
       ./services/sillytavern.nix # Silly Tavern service (fine, local)
       ./services/mongodb-docker.nix # MongoDB docker (fine, local, but consider OCI containers later)
       ./services/navidrome.nix
-      # ./services/gsplay.nix # GSPlay stack (fine, local)
+      ./services/gsplay.nix
+      ./services/foundry.nix
     ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -43,6 +44,7 @@
       111 # NFS Share
       443
       2049 # NFS Share
+      3000 #REMOVE THIS!!!
       6969 # Sillytavern
       7777 # Abiotic Factor Docker
       9090 # Bittorrent
@@ -149,6 +151,7 @@ systemd.mounts = [{
     xfsprogs
     docker-compose
     mergerfs
+    nodejs
     node2nix #Fuck you Nix
     # Apps
     neovim
