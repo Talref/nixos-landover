@@ -9,7 +9,6 @@
 
     serviceConfig = {
       ExecStart = ''|
-        ${pkgs.docker}/bin/docker rm -f n8n 2>/dev/null || true
         ${pkgs.docker}/bin/docker run \
           --name n8n \
           -d \
