@@ -1,4 +1,3 @@
-# ~/.dotfiles/services/n8n.nix
 { config, pkgs, lib, ... }:
 
 {
@@ -9,14 +8,15 @@
     enable = true;
 
     serviceConfig = {
-      ExecStart = ''
+      ExecStart = ''|
+        ${pkgs.docker}/bin/docker rm -f n8n 2>/dev/null || true
         ${pkgs.docker}/bin/docker run \
-        --name n8n \
-        --rm \
-        -p 5678:5678 \
-        -v /media/configs/n8n:/home/node/.n8n \
-        --env-file $HOME/.dotfiles/.env \
-        n8nio/n8n:latest
+          --name n8n \
+          -d \
+          -p 5678:5678 \
+          -v /media/configs/n8n:/home/node/.n8n \
+          --env-file /home/eradan/.dotfiles/.env \
+          n8nio/n8n:latest
       '';
       ExecStop = "${pkgs.docker}/bin/docker stop n8n";
       Restart = "always";
