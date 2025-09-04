@@ -32,17 +32,29 @@
   };
 
   # 3. Configure Caddy to serve the frontend and proxy the backend
-  services.caddy.virtualHosts."gs.andreaferlat.com" = {
-    extraConfig = ''
-      handle /api/* {
-        reverse_proxy localhost:3000
-      }
+    services.caddy.virtualHosts = {
+      "gsplay.daje.cc" = {
+        extraConfig = ''
+          handle /api/* {
+            reverse_proxy localhost:3000
+          }
 
-      handle {
-        root * /srv/gsplay/gsplay-frontend/dist
-        file_server
-        try_files {path} /index.html
-      }
-    '';
-  }
-;}
+          handle {
+            root * /srv/gsplay/gsplay-frontend/dist
+            file_server
+            try_files {path} /index.html
+          }
+        '';
+      };
+      "gs.andreaferlat.com:80" = {
+        extraConfig = ''
+          redir * https://gsplay.daje.cc{uri} permanent
+        '';
+      };
+      "gs.andreaferlat.com:443" = {
+        extraConfig = ''
+          redir * https://gsplay.daje.cc{uri} permanent
+        '';
+      };
+    };
+}

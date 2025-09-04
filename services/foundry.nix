@@ -18,7 +18,7 @@
   
   services.caddy = {
     enable = true;
-    virtualHosts."foundry.andreaferlat.com" = {
+    virtualHosts."foundry.daje.cc" = {
       extraConfig = ''
         reverse_proxy localhost:30000
       '';

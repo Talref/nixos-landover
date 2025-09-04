@@ -8,7 +8,6 @@
       ./services/mongodb-docker.nix # MongoDB docker (fine, local, but consider OCI containers later)
       ./services/navidrome.nix
       ./services/gsplay.nix
-      ./services/n8n.nix
       ./services/foundry.nix
     ];
 
@@ -45,13 +44,17 @@
       111 # NFS Share
       443 # Encrypted NET
       2049 # NFS Share
+      6500 # Real Debrid Client
       6969 # Sillytavern
       7777 # Abiotic Factor Docker
       7778 # Terraria Vanilla Docker
       9090 # Bittorrent
       8989 # Find out
-      27015 # Abiotic Factor Query
+      27015 # Steam Query Port
       32400 # Plex?
+    ];
+    allowedTCPPortRanges = [
+      { from = 16261; to = 16262; } # Zomboid
     ];
     allowedUDPPorts = [
       111 # NFS Share
@@ -59,6 +62,9 @@
       7777 # Abiotic Factor
       7778 # Terraria Vanilla 
       27015 # Abiotic Factor
+    ];
+    allowedUDPPortRanges = [
+      { from = 16261; to = 16262; } # Zomboid
     ];
     # Optional: allow ICMP/ping
     allowPing = true;

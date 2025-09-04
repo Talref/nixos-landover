@@ -13,6 +13,8 @@
       WorkingDirectory = "/home/eradan/ai/Sillytavern";
       ExecStart = "${pkgs.nodejs}/bin/node server.js";
       Restart = "on-failure";
+      # Add this line to include git and other essential tools
+      Environment="PATH=${pkgs.git}/bin:${pkgs.coreutils}/bin";
     };
   };
 
